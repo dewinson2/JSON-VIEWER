@@ -22,9 +22,12 @@ import {
   FileJson,
   FileCode,
   Sheet,
+  GitCompare,
 } from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import { JsonViewer } from "@/components/json-viewer"
+import { JsonComparator } from "@/components/json-comparator"
 
 export default function JsonViewerPage() {
   const [jsonInput, setJsonInput] = useState("")
@@ -37,6 +40,7 @@ export default function JsonViewerPage() {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [isEditorFullscreen, setIsEditorFullscreen] = useState(false)
+  const [activeTab, setActiveTab] = useState<"viewer" | "comparator">("viewer")
   const { toast } = useToast()
 
   useEffect(() => {
@@ -344,7 +348,19 @@ export default function JsonViewerPage() {
       className={`h-screen flex flex-col transition-colors duration-200 ${isDarkMode ? "bg-gray-900 text-gray-100" : "bg-gray-50 text-gray-900"}`}
     >
       <div className="flex-1 p-4 flex flex-col">
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-between items-center mb-4">
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "viewer" | "comparator")} className="w-auto">
+            <TabsList className={isDarkMode ? "bg-gray-700" : "bg-gray-200"}>
+              <TabsTrigger value="viewer" className="flex items-center gap-2">
+                <FileJson className="w-4 h-4" />
+                <span className="hidden sm:inline">Visor JSON</span>
+              </TabsTrigger>
+              <TabsTrigger value="comparator" className="flex items-center gap-2">
+                <GitCompare className="w-4 h-4" />
+                <span className="hidden sm:inline">Comparador</span>
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
           <Button onClick={toggleDarkMode} size="sm" variant="outline">
             {isDarkMode ? (
               <>
@@ -360,6 +376,7 @@ export default function JsonViewerPage() {
           </Button>
         </div>
 
+        {activeTab === "viewer" && (
         <div className="flex flex-1 gap-6 min-h-0">
           <Card
             className={`flex flex-col flex-1 min-w-0 ${isEditorFullscreen ? "fixed inset-0 z-50 rounded-none" : ""} ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
@@ -579,6 +596,13 @@ export default function JsonViewerPage() {
             </Card>
           )}
         </div>
+        )}
+
+        {activeTab === "comparator" && (
+          <div className="flex-1 min-h-0">
+            <JsonComparator isDarkMode={isDarkMode} />
+          </div>
+        )}
       </div>
     </div>
   )
